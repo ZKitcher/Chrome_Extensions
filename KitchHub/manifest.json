@@ -1,0 +1,35 @@
+{
+    "manifest_version": 3,
+    "name": "KitchHub",
+    "version": "1.0",
+    "description": "Internet quality of life.",
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "scripting",
+        "contextMenus"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "./content.js"
+            ],
+            "css": [
+                "KitchHub.css"
+            ]
+        }
+    ],
+    "icons": {
+        "16": "./assets/favicon.ico",
+        "32": "./assets/icon32.png",
+        "48": "./assets/icon48.png",
+        "96": "./assets/icon96.png",
+        "144": "./assets/icon144.png"
+    }
+}
