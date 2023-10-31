@@ -1,6 +1,40 @@
 const LS_ID = 'LinkScan'
 const YT_ID = 'YouTubeSearch'
 
+if (window.location.href.match(/Twitch.tv/gi)) {
+    let volume = null;
+
+    setInterval(() => {
+        const videos = document.getElementsByTagName('video');
+        const mainViewer = document.getElementById('MainViewer');
+
+        if (videos && videos.length > 0) {
+            const vidArray = Array.from(videos);
+
+            if (vidArray.length === 1) {
+                if (!mainViewer) {
+                    console.log('Setting ID')
+                    vidArray[0].id = 'MainViewer'
+                } else {
+                    mainViewer.muted = false;
+                }
+            }
+
+            vidArray.forEach(e => {
+                if (!e.hasAttribute('controls')) {
+                    e.setAttribute('controls', '');
+                    e.volume = volume || 0.1;
+                    e.muted = false;
+                    mainViewer.muted = true;
+                } else {
+                    if (e.volume)
+                        volume = e.volume;
+                }
+            });
+        }
+    }, 1000)
+}
+
 const stringSimilarityPercentage = (str1, str2) => {
     function levenshteinDistance(s1, s2) {
         const m = s1.length;
@@ -40,7 +74,7 @@ const findBestMatchingLink = (query, links) => {
 
     links.forEach(linkElement => {
         const linkText = linkElement.textContent;
-        const match = calculateStringSimilarity(query, linkText);
+        const match = stringSimilarityPercentage(query, linkText);
         if (match > bestMatch) {
             bestMatch = match;
             bestMatchLink = linkElement;
@@ -65,11 +99,8 @@ const createDemo = (href, event) => {
     }
 
     if (!imageDemo) {
-        console.log('returning')
         return;
     }
-
-    console.log(event)
 
     imageDemo.id = 'MousedOverDemo';
     imageDemo.style.position = 'absolute';
@@ -86,10 +117,8 @@ const createDemo = (href, event) => {
     return imageDemo;
 }
 
-
-document.addEventListener('mouseover', function (e) {
+document.addEventListener('mouseover', (e) => {
     if (e.target.tagName === "A") {
-        console.log(e);
 
         const HREF = e.target.getAttribute('href');
 
@@ -126,6 +155,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
         if (message.id === LS_ID) {
             const query = message.message;
+            const allLinks = document.querySelectorAll('a');
+
             const bestMatchLink = findBestMatchingLink(query, allLinks);
 
             if (bestMatchLink) {
