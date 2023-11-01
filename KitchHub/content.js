@@ -3,20 +3,22 @@ const YT_ID = 'YouTubeSearch'
 
 if (window.location.href.match(/Twitch.tv/gi)) {
     let volume = null;
+    const MAIN_ID = 'MainViewer'
+
+    const isVideoPlaying = (e) => !!(e.currentTime > 0 && !e.paused && !e.ended && e.readyState > 2);
 
     setInterval(() => {
         const videos = document.getElementsByTagName('video');
-        const mainViewer = document.getElementById('MainViewer');
+        const mainViewer = document.getElementById(MAIN_ID);
 
         if (videos && videos.length > 0) {
             const vidArray = Array.from(videos);
 
             if (vidArray.length === 1) {
                 if (!mainViewer) {
-                    console.log('Setting ID')
-                    vidArray[0].id = 'MainViewer'
-                } else {
-                    mainViewer.muted = false;
+                    console.log('Setting ID');
+                    vidArray[0].id = MAIN_ID;
+                    volume = vidArray[0].volume;
                 }
             }
 
@@ -25,7 +27,11 @@ if (window.location.href.match(/Twitch.tv/gi)) {
                     e.setAttribute('controls', '');
                     e.volume = volume || 0.1;
                     e.muted = false;
-                    mainViewer.muted = true;
+                    if (mainViewer)
+                        mainViewer.muted = true;
+                } else if (e.id !== MAIN_ID) {
+                    if (!isVideoPlaying(e))
+                        mainViewer.muted = false;
                 } else {
                     if (e.volume)
                         volume = e.volume;
