@@ -30,7 +30,7 @@ if (window.location.href.match(/Twitch.tv/gi)) {
                     if (mainViewer)
                         mainViewer.muted = true;
                 } else if (e.id !== MAIN_ID) {
-                    if (!isVideoPlaying(e))
+                    if (mainViewer && !isVideoPlaying(e))
                         mainViewer.muted = false;
                 } else {
                     if (e.volume)
@@ -180,3 +180,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error('Error:', error);
     }
 });
+
+
+document.querySelectorAll('a[href*="pathofexile.fandom.com"]').forEach(e => {
+    e.href = e.href.replace('pathofexile.fandom.com', 'www.poewiki.net');
+});
+if (window.location.href.match(/pathofexile.fandom/gi)) {
+    window.location.href = 'https://www.poewiki.net' + window.location.pathname;
+}
