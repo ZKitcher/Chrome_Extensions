@@ -46,49 +46,8 @@ if (window.location.href.match(/Twitch.tv/gi)) {
         }
     }, 500)
 
-    function appendCustomContent(node) {
-        var customContent = document.createElement('div');
-        customContent.classList.add('fiDbWi');
-        customContent.innerHTML = 'Ad Running';
-        customContent.id = AD_BANNER_ID;
-        customContent.style.display = 'none';
-
-        if (node.firstChild) {
-            node.insertBefore(customContent, node.firstChild);
-        } else {
-            node.appendChild(customContent);
-        }
-    }
-
-    DOMObserver('.Layout-sc-1xcs6mc-0.llUbgd', (e) => {
-        if (!document.getElementById(AD_BANNER_ID)) {
-            appendCustomContent(e)
-        }
-    });
+    // TODO add to title for ad 🔴
 }
-
-function DOMObserver(target, callback) {
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (!mutation.addedNodes) return;
-
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === 1) {
-                    const targetNode = document.querySelector(target);
-                    if (targetNode) {
-                        callback(targetNode);
-                    }
-                }
-            });
-        });
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-}
-
 
 const stringSimilarityPercentage = (str1, str2) => {
     function levenshteinDistance(s1, s2) {
