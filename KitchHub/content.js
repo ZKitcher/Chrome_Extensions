@@ -3,13 +3,18 @@ const YT_ID = 'YouTubeSearch'
 
 if (window.location.href.match(/Twitch.tv/gi)) {
     let volume = null;
-    const MAIN_ID = 'MainViewer'
+    const MAIN_ID = 'MainStreamVideo'
+    const AD_BANNER_ID = 'AdBanner'
 
     const isVideoPlaying = (e) => !!(e.currentTime > 0 && !e.paused && !e.ended && e.readyState > 2);
 
     setInterval(() => {
         const videos = document.getElementsByTagName('video');
         const mainViewer = document.getElementById(MAIN_ID);
+
+        if (mainViewer) {
+            volume = mainViewer.volume;
+        }
 
         if (videos && videos.length > 0) {
             const vidArray = Array.from(videos);
@@ -18,28 +23,72 @@ if (window.location.href.match(/Twitch.tv/gi)) {
                 if (!mainViewer) {
                     console.log('Setting ID');
                     vidArray[0].id = MAIN_ID;
-                    volume = vidArray[0].volume;
                 }
             }
 
             vidArray.forEach(e => {
                 if (!e.hasAttribute('controls')) {
                     e.setAttribute('controls', '');
-                    e.volume = volume || 0.1;
-                    e.muted = false;
-                    if (mainViewer)
-                        mainViewer.muted = true;
-                } else if (e.id !== MAIN_ID) {
-                    if (mainViewer && !isVideoPlaying(e))
-                        mainViewer.muted = false;
-                } else {
-                    if (e.volume)
-                        volume = e.volume;
+                }
+
+                e.volume = volume ?? 0.1;
+
+                if (e.id !== MAIN_ID) {
+                    let playing = isVideoPlaying(e);
+                    mainViewer.muted = playing;
+                    e.muted = !playing;
+                    const banner = document.getElementById(AD_BANNER_ID)
+                    if (banner) {
+                        banner.style.display = playing ? '' : 'none';
+                    }
                 }
             });
         }
-    }, 1000)
+    }, 500)
+
+    function appendCustomContent(node) {
+        var customContent = document.createElement('div');
+        customContent.classList.add('fiDbWi');
+        customContent.innerHTML = 'Ad Running';
+        customContent.id = AD_BANNER_ID;
+        customContent.style.display = 'none';
+
+        if (node.firstChild) {
+            node.insertBefore(customContent, node.firstChild);
+        } else {
+            node.appendChild(customContent);
+        }
+    }
+
+    DOMObserver('.Layout-sc-1xcs6mc-0.llUbgd', (e) => {
+        if (!document.getElementById(AD_BANNER_ID)) {
+            appendCustomContent(e)
+        }
+    });
 }
+
+function DOMObserver(target, callback) {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (!mutation.addedNodes) return;
+
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                    const targetNode = document.querySelector(target);
+                    if (targetNode) {
+                        callback(targetNode);
+                    }
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
 
 const stringSimilarityPercentage = (str1, str2) => {
     function levenshteinDistance(s1, s2) {
