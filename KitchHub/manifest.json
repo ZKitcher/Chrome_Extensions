@@ -7,8 +7,12 @@
         "activeTab",
         "tabs",
         "scripting",
-        "contextMenus"
+        "contextMenus",
+        "storage"
     ],
+    "action": {
+        "default_popup": "./popup/popup.html"
+    },
     "background": {
         "service_worker": "background.js"
     },
