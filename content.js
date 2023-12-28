@@ -23,51 +23,49 @@ if (href.match(/Twitch.tv/gi)) {
 }
 
 function AdMuter() {
-    let volume = null;
-    const MAIN_ID = 'MainStreamVideo'
-    const AD_BANNER_ID = 'AdBanner'
+    let volume = 0.1;
+    const MAIN_ID = 'Main_Stream_Video'
+    const AD_BANNER_ID = 'Ad_Banner'
 
     setInterval(() => {
+        if (!runningFeatures.twitch) return;
+
         const videos = document.getElementsByTagName('video');
         const mainViewer = document.getElementById(MAIN_ID);
+        const adBanner = document.getElementById(AD_BANNER_ID);
 
         if (mainViewer) {
             volume = mainViewer.volume;
         }
 
-        if (videos && videos.length > 0) {
-            const vidArray = Array.from(videos);
+        if (!videos) return;
 
-            if (vidArray.length === 1) {
-                if (!mainViewer) {
-                    console.log('Setting ID');
-                    vidArray[0].id = MAIN_ID;
-                }
-            }
+        const vidArray = Array.from(videos);
 
-            if (!runningFeatures.twitch) return;
-
-            vidArray.forEach(e => {
-                if (!e.hasAttribute('controls')) {
-                    e.setAttribute('controls', '');
-                }
-
-                e.volume = volume ?? 0.1;
-
-                if (e.id !== MAIN_ID) {
-                    let playing = isVideoPlaying(e);
-                    mainViewer.muted = playing;
-                    e.muted = !playing;
-                    const banner = document.getElementById(AD_BANNER_ID)
-                    if (banner) {
-                        banner.style.display = playing ? '' : 'none';
-                    }
-                }
-            });
+        if (!mainViewer && vidArray.length === 1) {
+            console.log('Setting ID');
+            vidArray[0].id = MAIN_ID;
         }
-    }, 200);
 
-    // TODO add to title for ad 🔴
+        vidArray.forEach(e => {
+            if (e.id === MAIN_ID) return;
+            if (!e.hasAttribute('controls')) e.setAttribute('controls', '');
+
+            const playing = isVideoPlaying(e);
+            e.volume = volume;
+            e.muted = !playing;
+            mainViewer.muted = playing;
+
+            if (!adBanner && playing) {
+                const newAdBanner = document.createElement('div');
+                newAdBanner.id = AD_BANNER_ID;
+                newAdBanner.innerText = '🔴';
+            } else if (adBanner) {
+                adBanner.remove();
+            }
+        });
+
+    }, 200);
 }
 
 /******************************************************************************/
@@ -195,54 +193,6 @@ if (runningFeatures.POE) {
         e.href = e.href.replace('pathofexile.fandom.com', 'www.poewiki.net');
     });
 };
-
-/******************************************************************************/
-/******************************************************************************/
-/******************************************************************************/
-// Cine2Cheatle
-
-var OriginalWebSocket = window.WebSocket;
-var callWebSocket = OriginalWebSocket.apply.bind(OriginalWebSocket);
-var wsAddListener = OriginalWebSocket.prototype.addEventListener;
-wsAddListener = wsAddListener.call.bind(wsAddListener);
-
-window.WebSocket = function WebSocket(url, protocols) {
-    var ws;
-    if (!(this instanceof WebSocket)) {
-        // Called without 'new' (browsers will throw an error).
-        ws = callWebSocket(this, arguments);
-    } else if (arguments.length === 1) {
-        ws = new OriginalWebSocket(url);
-    } else if (arguments.length >= 2) {
-        ws = new OriginalWebSocket(url, protocols);
-    } else { // No arguments (browsers will throw an error)
-        ws = new OriginalWebSocket();
-    }
-
-    wsAddListener(ws, 'open', function (event) {
-        console.log('WebSocket connection opened:', event);
-    });
-    wsAddListener(ws, 'close', function (event) {
-        console.log('WebSocket connection closed:', event);
-    });
-    wsAddListener(ws, 'message', function (event) {
-        console.log('WebSocket message received:', event.data);
-    });
-
-    return ws;
-}.bind();
-
-window.WebSocket.prototype = OriginalWebSocket.prototype;
-window.WebSocket.prototype.constructor = window.WebSocket;
-
-var wsSend = OriginalWebSocket.prototype.send;
-wsSend = wsSend.apply.bind(wsSend);
-
-window.WebSocket.prototype.send = function (data) {
-    console.log('WebSocket message sent:', data);
-    return wsSend(this, arguments);
-};
-
 
 /******************************************************************************/
 /******************************************************************************/
