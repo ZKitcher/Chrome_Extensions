@@ -247,6 +247,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         if (message.command) {
+            console.log('Toggling:', message)
             if (message.command === 'enable-feature') {
                 // Enable some feature
                 runningFeatures[message.feature] = true;
