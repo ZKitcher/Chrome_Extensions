@@ -1,14 +1,11 @@
 <script>
     import logo from "./assets/logo.png";
-    import FeatureToggle from "./lib/FeatureToggle.svelte";
     import hubConfig from "./hubConfig";
+    import FeatureToggle from "./lib/FeatureToggle.svelte";
 </script>
 
 <main>
-    <div>
-        <img src={logo} class="logo" alt="Vite Logo" />
-    </div>
-
+    <img src={logo} class="logo" alt="Vite Logo" />
     <div class="card">
         {#each hubConfig as e}
             <FeatureToggle label={e.label} name={e.id} />

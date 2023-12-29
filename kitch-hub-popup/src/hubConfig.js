@@ -15,6 +15,18 @@ const hubConfig = [
         label: 'POE',
         id: "POE",
     },
+    {
+        label: 'Quick Hide (F8)',
+        id: "quickHide",
+    },
+    {
+        label: 'Quick Mute Tabs (F9)',
+        id: "muteTabs",
+    },
+    {
+        label: 'YouTube Search',
+        id: "youTubeLookup",
+    },
 ];
 
 export default hubConfig

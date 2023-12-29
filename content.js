@@ -1,13 +1,18 @@
+const storageKey = 'KitchHub'
 const LS_ID = 'LinkScan'
 const YT_ID = 'YouTubeSearch'
-const storageKey = 'KitchHub'
+const ExitPIP = 'exitPiP'
+const MuteTabs = 'muteTabs'
 const href = window.location.href;
 
 const defaultConfig = {
     twitch: true,
     mediaDemo: true,
     pageLinkLookup: true,
-    POE: true
+    POE: true,
+    quickHide: true,
+    youTubeLookup: true,
+    muteTabs: true,
 }
 
 let runningFeatures = defaultConfig;
@@ -47,6 +52,7 @@ function AdMuter() {
             vidArray[0].id = MAIN_ID;
         }
 
+        console.log(vidArray)
         vidArray.forEach(e => {
             if (e.id === MAIN_ID) return;
             if (!e.hasAttribute('controls')) e.setAttribute('controls', '');
@@ -57,10 +63,12 @@ function AdMuter() {
             mainViewer.muted = playing;
 
             if (!adBanner && playing) {
+                const title = document.querySelector('[data-a-target="stream-title"]');
                 const newAdBanner = document.createElement('div');
                 newAdBanner.id = AD_BANNER_ID;
-                newAdBanner.innerText = '🔴';
-            } else if (adBanner) {
+                newAdBanner.innerText = '🔴 Ad in Progress';
+                title.appendChild(newAdBanner);
+            } else if (!mainViewer.muted && adBanner) {
                 adBanner.remove();
             }
         });
@@ -183,6 +191,19 @@ document.addEventListener('mousedown', () => {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
+// YouTube Lookup
+
+function YouTubeLookup(selected) {
+    if (!runningFeatures.youTubeLookup) return;
+
+    const query = selected.replace(/ /g, '+');
+    const URL = 'https://www.youtube.com/results?search_query=' + query;
+    window.open(URL, '_blank').focus();
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
 // POE
 
 if (runningFeatures.POE) {
@@ -193,6 +214,28 @@ if (runningFeatures.POE) {
         e.href = e.href.replace('pathofexile.fandom.com', 'www.poewiki.net');
     });
 };
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+// Quick Hide
+
+function quickHide() {
+    if (!runningFeatures.quickHide) return;
+
+    chrome.runtime.sendMessage({ action: ExitPIP });
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+// Mute Tabs
+
+function muteTabs() {
+    if (!runningFeatures.muteTabs) return;
+
+    chrome.runtime.sendMessage({ action: MuteTabs });
+}
 
 /******************************************************************************/
 /******************************************************************************/
@@ -245,17 +288,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.id === LS_ID) {
             linkSearch(message.message);
         }
+        if (message.id === YT_ID) {
+            YouTubeLookup(message.message);
+        }
+
 
         if (message.command) {
-            console.log('Toggling:', message)
-            if (message.command === 'enable-feature') {
-                // Enable some feature
-                runningFeatures[message.feature] = true;
-
-            } else if (message.command === 'disable-feature') {
-                // Disable some feature
-                runningFeatures[message.feature] = false;
+            switch (message.command) {
+                case 'enable-feature':
+                    runningFeatures[message.feature] = true;
+                    break;
+                case 'disable-feature':
+                    runningFeatures[message.feature] = false;
+                    break;
+                default:
+                    break;
             }
+
             setHubConfig();
         }
 
@@ -264,6 +313,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F8') {
+        quickHide()
+    }
+    if (e.key === 'F9') {
+        muteTabs()
+    }
+});
 
 /******************************************************************************/
 /******************************************************************************/
