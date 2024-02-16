@@ -27,6 +27,10 @@ const hubConfig = [
         label: 'YouTube Search',
         id: "youTubeLookup",
     },
+    {
+        label: 'Craft Hub',
+        id: "craftHub",
+    },
 ];
 
 export default hubConfig

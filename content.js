@@ -13,10 +13,64 @@ const defaultConfig = {
     quickHide: true,
     youTubeLookup: true,
     muteTabs: true,
+    craftHub: true,
 }
 
 let runningFeatures = defaultConfig;
 getHubConfig();
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+// Neil.fun/infinite-craft
+
+function craftHub() {
+    if (!runningFeatures.muteTabs) return;
+    if (!href.match(/neal.fun\/infinite-craft/gi)) return;
+
+    const res = localStorage.getItem('infinite-craft-data');
+    const parsedRes = JSON.parse(res);
+
+    console.log(parsedRes);
+
+    const dataList = document.createElement('div');
+    dataList.style.display = 'flex';
+    dataList.style.flexDirection = 'column';
+    dataList.style.gap = '0.2em';
+
+    parsedRes.elements.forEach(item => {
+        const listItem = document.createElement('div');
+        listItem.style.display = 'flex';
+        listItem.style.justifyContent = 'space-between';
+
+        const title = document.createElement('span');
+        title.textContent = item.text;
+
+        const remove = document.createElement('button');
+        remove.textContent = 'Remove';
+        remove.onclick = function () {
+            removeElement(item.text)
+        };
+
+        listItem.appendChild(title);
+        listItem.appendChild(remove);
+
+        dataList.appendChild(listItem);
+    });
+
+
+    createModal('Craft Hub', dataList)
+}
+
+function removeElement(element) {
+    const res = localStorage.getItem('infinite-craft-data');
+    const parsedRes = JSON.parse(res);
+
+    const newList = parsedRes.elements.filter(e => e.text !== element);
+    localStorage.setItem('infinite-craft-data', JSON.stringify({ elements: [...newList] }));
+    console.log('Removing:', element);
+}
+
 
 /******************************************************************************/
 /******************************************************************************/
@@ -278,6 +332,70 @@ function stringSimilarityPercentage(str1, str2) {
 }
 
 
+function createModal(header, children) {
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    modal.style.width = '100svw';
+    modal.style.height = '100svh';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.position = 'absolute';
+    modal.style.zIndex = '100';
+    modal.style.color = 'rgba(255, 255, 255, 0.87)';
+    modal.style.backgroundColor = '#24242440';
+    modal.style.padding = '0.3em';
+
+    // Create modal content
+    const modalWrapper = document.createElement('div');
+    modalWrapper.classList.add('modal-content');
+    modalWrapper.style.width = '20vw';
+    modalWrapper.style.height = '45vh';
+    modalWrapper.style.backgroundColor = '#242424';
+    modalWrapper.style.display = 'flex';
+    modalWrapper.style.flexDirection = 'column';
+    modalWrapper.style.padding = '0.3em';
+    modalWrapper.style.borderRadius = '0.2rem';
+
+    const modalHeader = document.createElement('div');
+    modalHeader.style.display = 'flex';
+    modalHeader.style.justifyContent = 'space-between';
+    modalHeader.style.padding = '0.1em 0.2em';
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modalContent.style.display = 'flex';
+    modalContent.style.flexDirection = 'column';
+    modalContent.style.width = '100%';
+    modalContent.style.height = '100%';
+    modalContent.style.overflow = 'auto';
+    modalContent.style.background = '#313131';
+    modalContent.style.borderRadius = '0.2em';
+
+    const Header = document.createElement('span');
+    Header.innerHTML = header;
+    Header.style.fontSize = '2em';
+
+    const closeButton = document.createElement('span');
+    closeButton.classList.add('close');
+    closeButton.innerHTML = '&times;';
+    closeButton.style.fontSize = '2em';
+    closeButton.style.cursor = 'pointer';
+    closeButton.onclick = function () {
+        modal.style.display = 'none';
+    };
+
+    modalHeader.appendChild(Header);
+    modalHeader.appendChild(closeButton);
+    modalWrapper.appendChild(modalHeader);
+    modalContent.appendChild(children);
+    modalWrapper.appendChild(modalContent);
+    modal.appendChild(modalWrapper);
+
+    document.body.appendChild(modal);
+
+    modal.style.display = 'flex';
+}
+
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
@@ -319,6 +437,9 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.key === 'F9') {
         muteTabs()
+    }
+    if (e.key === 'c') {
+        craftHub()
     }
 });
 
