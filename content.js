@@ -28,6 +28,11 @@ function craftHub() {
     if (!runningFeatures.muteTabs) return;
     if (!href.match(/neal.fun\/infinite-craft/gi)) return;
 
+    let focusedElement = document.activeElement;
+    if (focusedElement && focusedElement.tagName === "INPUT") {
+        return;
+    }
+
     const res = localStorage.getItem('infinite-craft-data');
     const parsedRes = JSON.parse(res);
 
@@ -38,7 +43,7 @@ function craftHub() {
     dataList.style.flexDirection = 'column';
     dataList.style.gap = '0.2em';
 
-    parsedRes.elements.forEach(item => {
+    parsedRes.elements.sort((a, b) => a.text.localeCompare(b.text)).forEach(item => {
         const listItem = document.createElement('div');
         listItem.style.display = 'flex';
         listItem.style.justifyContent = 'space-between';
