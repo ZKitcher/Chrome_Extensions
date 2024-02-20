@@ -92,15 +92,12 @@ function AdMuter() {
     const AD_BANNER_ID = 'Ad_Banner'
 
     setInterval(() => {
-        if (!runningFeatures.twitch) return;
+        const subbed = window.document.body.textContent.match('Continue Sub')
+        if (!runningFeatures.twitch || subbed) return;
 
         const videos = document.getElementsByTagName('video');
         const mainViewer = document.getElementById(MAIN_ID);
         const adBanner = document.getElementById(AD_BANNER_ID);
-
-        if (mainViewer) {
-            volume = mainViewer.volume;
-        }
 
         if (!videos) return;
 
@@ -111,7 +108,10 @@ function AdMuter() {
             vidArray[0].id = MAIN_ID;
         }
 
-        console.log(vidArray)
+        if (mainViewer && vidArray.length === 1) {
+            volume = mainViewer.volume;
+        }
+
         vidArray.forEach(e => {
             if (e.id === MAIN_ID) return;
             if (!e.hasAttribute('controls')) e.setAttribute('controls', '');
