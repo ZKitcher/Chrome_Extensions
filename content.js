@@ -121,10 +121,6 @@ function AdMuter() {
             e.muted = !playing;
             mainViewer.muted = playing;
 
-            if (e.volume !== volume) {
-                volume = e.volume;
-            }
-
             if (!adBanner && playing) {
                 const title = document.querySelector('[data-a-target="stream-title"]');
                 const newAdBanner = document.createElement('div');
